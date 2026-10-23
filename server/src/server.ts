@@ -9,10 +9,16 @@ import { seedQuestions } from "./seed.js";
 const app = express();
 const port = Number(process.env.PORT) || 5000;
 
+// Render can use CLIENT_URL for one frontend or CLIENT_URLS for a comma
+// separated list (for example, the Vercel production and preview domains).
 const allowedOrigins = [
   "http://localhost:5173",
-  process.env.CLIENT_URL
-].filter((origin): origin is string => Boolean(origin));
+  process.env.CLIENT_URL,
+  ...(process.env.CLIENT_URLS ?? "").split(",")
+]
+  .filter((origin): origin is string => Boolean(origin))
+  .map((origin) => origin.trim().replace(/\/$/, ""))
+  .filter(Boolean);
 
 app.use(
   cors({
